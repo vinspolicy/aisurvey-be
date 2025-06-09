@@ -1,4 +1,3 @@
 fastapi
 uvicorn
-fuzzywuzzy
 python-Levenshtein

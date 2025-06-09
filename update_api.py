@@ -1,26 +1,23 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from matching_logic import update_database
+from matching_logic import process_core_ideas
 
 app = FastAPI()
 
-# CORS setup
+# Enable CORS for frontend access
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=["*"], allow_credentials=True,
+    allow_methods=["*"], allow_headers=["*"]
 )
 
-class IdeasPayload(BaseModel):
-    core_ideas: list[str]
-
-@app.post("/update/")
-async def update_core_ideas(payload: IdeasPayload):
-    if not payload.core_ideas:
-        raise HTTPException(status_code=400, detail="No core ideas provided.")
+@app.post("/update-database/")
+async def update_database(req: Request):
+    data = await req.json()
+    core_ideas = data.get("core_ideas", [])
     
-    result = update_database(payload.core_ideas)
-    return {"update_summary": result}
+    if not core_ideas:
+        return {"error": "Missing core_ideas"}
+
+    result = process_core_ideas(core_ideas)
+    return {"status": "processed", "results": result}
