@@ -9,7 +9,7 @@ app = FastAPI()
 # Enable full CORS (for frontend testing)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://vinspolicy.github.io"],
+    allow_origins=["https://vinspolicy.github.io/aisurvey-fe/"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
