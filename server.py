@@ -1,24 +1,23 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from matching_logic import load_database, save_database, process_ideas
 
 app = FastAPI()
 
-# Enable full CORS (for frontend testing)
+# ✅ Set your allowed origins here
+origins = [
+    "https://vinspolicy.github.io",  # GitHub Pages
+]
+
+# ✅ CORS middleware must come before routes
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://vinspolicy.github.io/aisurvey-fe/"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Handle OPTIONS requests for CORS preflight (needed in some deployments)
-@app.options("/{rest_of_path:path}")
-async def preflight_handler(rest_of_path: str):
-    return JSONResponse(content={"message": "CORS preflight successful"})
 
 class CoreIdeasRequest(BaseModel):
     ideas: list[str]
