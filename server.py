@@ -24,9 +24,7 @@ class CoreIdeasRequest(BaseModel):
 
 @app.post("/update-database/")
 async def update_database(data: CoreIdeasRequest):
-    database = load_database()
-    updated_database = process_ideas(data.ideas, database)
-    save_database(updated_database)
+    updated_database = process_ideas(data.ideas)
     return {"message": "Database updated successfully", "updated_count": len(data.ideas)}
 
 @app.get("/")
