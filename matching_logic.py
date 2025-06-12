@@ -6,22 +6,31 @@ DB_PATH = "aisurvey-data.json"
 MATCH_THRESHOLD_HIGH = 0.90
 MATCH_THRESHOLD_LOW  = 0.80
 
-# A global list to collect execution steps
 execution_log: list[str] = []
 
-def log(message: str):
-    execution_log.append(message)
+def log(msg: str):
+    execution_log.append(msg)
 
-def load_database() -> list[dict]:
-    log("started: load_database")
+def load_database(parse: bool = True) -> list[dict] | None:
+    """
+    If parse=False: just ensure the file exists, return None.
+    If parse=True: read & return the list of entries.
+    """
+    log("started: load_database (parse=%s)" % parse)
     if not os.path.exists(DB_PATH):
         log(f"{DB_PATH} not found; creating new file")
         with open(DB_PATH, "w", encoding="utf-8") as f:
             json.dump([], f, ensure_ascii=False, indent=2)
+    if not parse:
+        log("completed: load_database (existence check only)")
+        return None
+
     with open(DB_PATH, "r", encoding="utf-8") as f:
         data = json.load(f)
-    log("completed: load_database")
+    log("completed: load_database (full parse)")
     return data
+
+# ... rest of your matching_logic with save_database() and process_ideas() unchanged ...
 
 def save_database(data: list[dict]):
     log("started: save_database")
