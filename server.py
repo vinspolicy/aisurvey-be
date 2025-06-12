@@ -1,19 +1,19 @@
-from fastapi import FastAPI, Request
+import logging
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from matching_logic import load_database, save_database, process_ideas
+
+from matching_logic import process_ideas
+
+# Configure basic logging to stdout
+logging.basicConfig(level=logging.INFO)
 
 app = FastAPI()
 
-# ✅ Set your allowed origins here
-origins = [
-    "https://vinspolicy.github.io",  # GitHub Pages
-]
-
-# ✅ CORS middleware must come before routes
+# CORS middleware (allow your GitHub Pages origin or use ["*"] for testing)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["https://vinspolicy.github.io/aisurvey-fe"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -24,8 +24,18 @@ class CoreIdeasRequest(BaseModel):
 
 @app.post("/update-database/")
 async def update_database(data: CoreIdeasRequest):
-    updated_database = process_ideas(data.ideas)
-    return {"message": "Database updated successfully", "updated_count": len(data.ideas)}
+    # Run your matching logic (loads, processes, saves, and logs)
+    response = process_ideas(data.ideas)
+
+    # Print the execution log to the server console
+    logging.info("Execution log:\n%s", "\n".join(response["log"]))
+
+    # Return both the match results and the log back to the client
+    return {
+        "message": "Database updated successfully",
+        "results": response["results"],
+        "log": response["log"]
+    }
 
 @app.get("/")
 async def root():
