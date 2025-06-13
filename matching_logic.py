@@ -71,11 +71,11 @@ def process_ideas(core_ideas: list[str]) -> dict:
     execution_log.clear()
     log("started: process_ideas")
 
-    db = load_database()
+    db = load_database(parse=True)
     results: dict[str, dict] = {}
 
     for idea in core_ideas:
-        log(f"processing idea: {idea}")
+        log("processing idea: {idea}")
         outcome = find_matches(idea, db)
         results[idea] = outcome
 

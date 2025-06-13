@@ -43,9 +43,7 @@ class CoreIdeasRequest(BaseModel):
 @app.post("/update-database/")
 async def update_database(data: CoreIdeasRequest):
     try:
-        db = load_database(parse=True)
-        results, log_msgs = process_ideas(data.ideas, db)
-        save_database(db)
+        results, log_msgs = process_ideas(data.ideas)
         logging.info("\n".join(log_msgs))
         return JSONResponse(status_code=200, content={"results": results, "log": log_msgs})
     except Exception as e:
