@@ -10,9 +10,11 @@ logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 app = FastAPI()
 
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://vinspolicy.github.io/aisurvey-fe"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
