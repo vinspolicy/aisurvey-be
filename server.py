@@ -1,7 +1,13 @@
+# aisurvey-be/server.py
+
+import logging
+import json
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-import logging
 
 from matching_logic import load_database, save_database, process_ideas
 
@@ -10,32 +16,40 @@ logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 app = FastAPI()
 
-# CORS middleware
-@app.middleware("http")
-async def add_cors_headers(request, call_next):
-    response = await call_next(request)
-    response.headers["Access-Control-Allow-Origin"] = "https://vinspolicy.github.io"
-    response.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
-    response.headers["Access-Control-Allow-Headers"] = "*"
-    return response
+# CORS – allow your GitHub Pages host (or use ["*"] during testing)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://vinspolicy.github.io"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Explicitly accept OPTIONS on both variants
+@app.options("/update-database")
+@app.options("/update-database/")
+async def options_update_database():
+    return JSONResponse(status_code=200, content={})
 
 @app.on_event("startup")
 async def ensure_db_exists():
-    # Existence-only check, no parse
+    # Existence-only check
     load_database(parse=False)
 
 class CoreIdeasRequest(BaseModel):
     ideas: list[str]
 
-@app.post("/update-database/")
+@app.post("/update-database")
 async def update_database(data: CoreIdeasRequest):
-    # Full load for processing
-    db = load_database(parse=True)
-    results, log = process_ideas(data.ideas, db)
-    save_database(db)
-    logging.info("\n".join(log))
-    return {"results": results, "log": log}
+    try:
+        db = load_database(parse=True)
+        results, log_msgs = process_ideas(data.ideas, db)
+        save_database(db)
+        logging.info("\n".join(log_msgs))
+        return JSONResponse(status_code=200, content={"results": results, "log": log_msgs})
+    except Exception as e:
+        logging.error(str(e))
+        return JSONResponse(status_code=500, content={"error": str(e)})
 
 @app.get("/")
 async def root():
-    return {"message": "Backend running"}
+    return {"message": "Survey database backend is running!"}
