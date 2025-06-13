@@ -39,6 +39,7 @@ class CoreIdeasRequest(BaseModel):
     ideas: list[str]
 
 @app.post("/update-database")
+@app.post("/update-database/")
 async def update_database(data: CoreIdeasRequest):
     try:
         db = load_database(parse=True)
