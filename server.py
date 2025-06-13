@@ -3,6 +3,7 @@
 import logging
 import json
 import os
+import traceback
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -48,8 +49,11 @@ async def update_database(data: CoreIdeasRequest):
         logging.info("\n".join(log_msgs))
         return JSONResponse(status_code=200, content={"results": results, "log": log_msgs})
     except Exception as e:
-        logging.error(str(e))
-        return JSONResponse(status_code=500, content={"error": str(e)})
+        # Print full traceback to Render logs
+        tb = traceback.format_exc()
+        logging.error(tb)
+        # Return JSONError so CORS headers get applied
+        return JSONResponse(status_code=500, content={"error": str(e), "trace": tb})
 
 @app.get("/")
 async def root():
