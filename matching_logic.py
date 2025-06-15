@@ -79,7 +79,7 @@ def process_ideas(core_ideas: list[str]) -> dict:
     execution_log.clear()
     log("started: process_ideas")
 
-    db = load_database(parse=True)
+    db = load_database()
     results: dict[str, dict] = {}
 
     for idea in core_ideas:
