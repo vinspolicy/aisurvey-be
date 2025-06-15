@@ -12,7 +12,6 @@ from pydantic import BaseModel
 
 from matching_logic import load_database, save_database, process_ideas
 
-DB_PATH = "aisurvey-data.json"
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 app = FastAPI()
