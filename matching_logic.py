@@ -2,7 +2,7 @@ import json
 import os
 from Levenshtein import ratio
 
-DB_PATH = "aisurvey-data.json"
+DB_PATH = "aisurvey_data.json"
 MATCH_THRESHOLD_HIGH = 0.90
 MATCH_THRESHOLD_LOW  = 0.80
 
@@ -18,7 +18,7 @@ def load_database(parse: bool = True) -> list[dict] | None:
     """
     log("started: load_database (parse=%s)" % parse)
     if not os.path.exists(DB_PATH):
-        log(f"{DB_PATH} not found; creating new file")
+        log("{DB_PATH} not found; creating new file")
         with open(DB_PATH, "w", encoding="utf-8") as f:
             json.dump([], f, ensure_ascii=False, indent=2)
     if not parse:
