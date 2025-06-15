@@ -30,11 +30,6 @@ app.add_middleware(
 async def options_update_database():
     return JSONResponse(status_code=200, content={})
 
-@app.on_event("startup")
-async def ensure_db_exists():
-    # Existence-only check
-    load_database(parse=False)
-
 class CoreIdeasRequest(BaseModel):
     ideas: list[str]
 
