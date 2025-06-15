@@ -11,24 +11,32 @@ execution_log: list[str] = []
 def log(msg: str):
     execution_log.append(msg)
 
-def load_database(parse: bool = True) -> list[dict] | None:
+def load_database() -> list[dict]:
     """
-    If parse=False: just ensure the file exists, return None.
-    If parse=True: read & return the list of entries.
+    Ensure the file exists and always load/return valid data,
+    even if the file is empty or corrupted.
     """
-    log("started: load_database (parse=%s)" % parse)
+    log("started: load_database")
     if not os.path.exists(DB_PATH):
-        log("{DB_PATH} not found; creating new file")
+        log(f"{DB_PATH} not found; creating new file")
         with open(DB_PATH, "w", encoding="utf-8") as f:
             json.dump([], f, ensure_ascii=False, indent=2)
-    if not parse:
-        log("completed: load_database (existence check only)")
-        return None
-
-    with open(DB_PATH, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    log("completed: load_database (full parse)")
-    return data
+    # Now try to load, but catch empty/corrupt cases
+    try:
+        with open(DB_PATH, "r", encoding="utf-8") as f:
+            content = f.read().strip()
+            if not content:
+                log("DB file was empty; initializing with []")
+                return []
+            data = json.loads(content)
+            log("completed: load_database")
+            return data
+    except Exception as e:
+        # Corrupted file or bad JSON
+        log(f"Error loading DB: {e}; resetting to []")
+        with open(DB_PATH, "w", encoding="utf-8") as f:
+            json.dump([], f, ensure_ascii=False, indent=2)
+        return []
 
 # ... rest of your matching_logic with save_database() and process_ideas() unchanged ...
 
